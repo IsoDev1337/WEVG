@@ -42,6 +42,16 @@ public sealed class RecordingSession
 
         try
         {
+            // 0. Route audio FIRST: Wallpaper Engine hooks its audio capture to the
+            //    default device at the moment the wallpaper window is created, so the
+            //    switch must already be in effect when the window opens — switching
+            //    afterwards leaves the wallpaper listening to the old device (no reaction).
+            if (settings.PlaybackDeviceId != null)
+            {
+                audioRoute = new DefaultAudioDeviceScope(settings.PlaybackDeviceId);
+                await Task.Delay(300, ct); // let Windows propagate the device change
+            }
+
             // 1. Ask Wallpaper Engine to render the wallpaper in its own window.
             progress.Report((0, "Setting up the wallpaper..."));
             RunWeCommand(we,
@@ -79,8 +89,7 @@ public sealed class RecordingSession
 
             // 4. The song's duration fixes the video's total frame count, so audio and
             //    video always end up exactly the same length.
-            audio = new AudioPlayer(audioPath,
-                settings.PlayAudioDuringCapture ? settings.PlaybackDeviceId : null);
+            audio = new AudioPlayer(audioPath, settings.PlaybackDeviceId);
             long totalFrames = (long)Math.Ceiling(audio.Duration.TotalSeconds * settings.Fps);
             ffmpeg.Start(ffmpegPath, settings, audioPath, outputPath, capture.Width, capture.Height);
 
@@ -95,15 +104,7 @@ public sealed class RecordingSession
             // 5. Audio and the video clock start at the same instant. Playback exists
             //    only so audio-reactive wallpapers can "hear" the music: the video gets
             //    the original file muxed in, never what comes out of the speakers.
-            //    If the user picked another output device, it temporarily becomes the
-            //    system default (that's what WE listens to) — silent recording when
-            //    nothing is connected to it.
-            if (settings.PlayAudioDuringCapture)
-            {
-                if (settings.PlaybackDeviceId != null)
-                    audioRoute = new DefaultAudioDeviceScope(settings.PlaybackDeviceId);
-                audio.Play();
-            }
+            audio.Play();
             var clock = Stopwatch.StartNew();
 
             NativeMethods.TimeBeginPeriod(1); // 1 ms clock: no cadence micro-stutter

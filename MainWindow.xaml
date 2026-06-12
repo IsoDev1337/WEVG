@@ -70,16 +70,13 @@
             <Button DockPanel.Dock="Right" Content="Browse..." Margin="8,0,0,0" Click="BrowseAudio_Click"/>
             <TextBox x:Name="AudioPathBox" IsReadOnly="True"/>
         </DockPanel>
-        <CheckBox x:Name="PlayAudioCheck" IsChecked="True" Margin="0,2,0,6"
-                  Content="Play the song while recording"
-                  ToolTip="Required for audio-reactive wallpapers — they only move to what is actually playing. If your wallpaper doesn't react to music, untick this to record in silence."/>
-        <DockPanel Margin="22,0,0,4" IsEnabled="{Binding IsChecked, ElementName=PlayAudioCheck}">
-            <TextBlock Text="Play on" Foreground="#FF9A9AB0" VerticalAlignment="Center" Margin="0,0,8,0"/>
+        <DockPanel Margin="0,2,0,4">
+            <TextBlock Text="Play the song on" Foreground="#FF9A9AB0" VerticalAlignment="Center" Margin="0,0,8,0"/>
             <ComboBox x:Name="PlaybackDeviceCombo"
-                      ToolTip="Where the song plays during recording. Pick a device with nothing connected (e.g. your monitor's HDMI/digital output) to record WITHOUT hearing the music: the app temporarily routes sound there so the wallpaper still reacts, and restores your device when done."/>
+                      ToolTip="If the wallpaper doesn't react, make sure Wallpaper Engine's audio device is set to 'Default' in WE's settings."/>
         </DockPanel>
-        <TextBlock Foreground="#FF6E6E85" FontSize="11" TextWrapping="Wrap" Margin="22,0,0,14"
-                   Text="Audio-reactive wallpapers only 'hear' what actually plays, so the song must play somewhere. Silent recording: choose an output you can't hear (e.g. an HDMI/digital output with no speakers) — it temporarily becomes the system default and everything is restored afterwards. The video always gets the ORIGINAL file muxed in (exact volume, never re-recorded)."/>
+        <TextBlock Foreground="#FF6E6E85" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,14"
+                   Text="The song must play — the wallpaper reacts to real playback. To record in silence, pick an output you can't hear (e.g. a monitor without speakers); your device is restored when done. The video gets the original audio file either way."/>
 
         <!-- Quality settings -->
         <Expander Header="Quality settings" Foreground="#FFE8E8F0" IsExpanded="False" Margin="0,0,0,14">

@@ -16,7 +16,6 @@ public class UserPrefs
     public int EncoderIndex { get; set; } = -1;
     public int Quality { get; set; } = 16;
     public int AudioModeIndex { get; set; } = 0;  // AAC 320 → .mp4
-    public bool PlayAudio { get; set; } = true;
     public string? PlaybackDeviceId { get; set; }
     public bool HideWindow { get; set; } = true;
     public bool CloseWindow { get; set; } = true;

@@ -24,11 +24,8 @@ public class VisualizerSettings
     public AudioMode AudioMode { get; set; } = AudioMode.Aac320;
     public string OutputDirectory { get; set; } = "";
 
-    /// <summary>Play the song while recording. Required for audio-reactive wallpapers
-    /// (they react to what's actually playing); can be turned off for the rest.</summary>
-    public bool PlayAudioDuringCapture { get; set; } = true;
-
-    /// <summary>Output device to play the song on (null = system default). Picking an
+    /// <summary>Output device to play the song on (null = system default). The song
+    /// always plays — audio-reactive wallpapers react to real playback. Picking an
     /// unused device (e.g. a monitor's HDMI output) allows silent recording: the app
     /// temporarily makes it the system default so the wallpaper still "hears" it.</summary>
     public string? PlaybackDeviceId { get; set; }

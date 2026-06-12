@@ -100,7 +100,6 @@ public partial class MainWindow : Window
             }
             QualitySlider.Value = Math.Clamp(prefs.Quality, (int)QualitySlider.Minimum, (int)QualitySlider.Maximum);
             SelectIndex(AudioModeCombo, prefs.AudioModeIndex);
-            PlayAudioCheck.IsChecked = prefs.PlayAudio;
             HideWindowCheck.IsChecked = prefs.HideWindow;
             CloseWindowCheck.IsChecked = prefs.CloseWindow;
 
@@ -131,7 +130,6 @@ public partial class MainWindow : Window
         _prefs.EncoderIndex = _encoderUserSet ? EncoderCombo.SelectedIndex : -1; // -1 keeps auto-detect
         _prefs.Quality = (int)QualitySlider.Value;
         _prefs.AudioModeIndex = AudioModeCombo.SelectedIndex;
-        _prefs.PlayAudio = PlayAudioCheck.IsChecked == true;
         _prefs.PlaybackDeviceId = (PlaybackDeviceCombo.SelectedItem as ComboBoxItem)?.Tag as string;
         _prefs.HideWindow = HideWindowCheck.IsChecked == true;
         _prefs.CloseWindow = CloseWindowCheck.IsChecked == true;
@@ -252,7 +250,6 @@ public partial class MainWindow : Window
             Quality = (int)QualitySlider.Value,
             AudioMode = Enum.Parse<AudioMode>(((ComboBoxItem)AudioModeCombo.SelectedItem).Tag!.ToString()!),
             OutputDirectory = OutputDirBox.Text,
-            PlayAudioDuringCapture = PlayAudioCheck.IsChecked == true,
             PlaybackDeviceId = (PlaybackDeviceCombo.SelectedItem as ComboBoxItem)?.Tag as string,
             HideCaptureWindow = HideWindowCheck.IsChecked == true,
             CloseWindowWhenDone = CloseWindowCheck.IsChecked == true
@@ -339,7 +336,6 @@ public partial class MainWindow : Window
         QualitySlider.IsEnabled = enabled;
         AudioPathBox.IsEnabled = enabled;
         OutputDirBox.IsEnabled = enabled;
-        PlayAudioCheck.IsEnabled = enabled;
         HideWindowCheck.IsEnabled = enabled;
         CloseWindowCheck.IsEnabled = enabled;
     }
