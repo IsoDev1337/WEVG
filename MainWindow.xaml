@@ -1,0 +1,166 @@
+<Window x:Class="WEVisualizer.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="WE Visualizer"
+        Icon="assets/logo.ico"
+        Width="620" SizeToContent="Height" ResizeMode="CanMinimize"
+        Background="#FF15151B" Foreground="#FFE8E8F0"
+        FontFamily="Segoe UI" FontSize="13"
+        Loaded="Window_Loaded">
+
+    <Window.Resources>
+        <Style TargetType="{x:Type Button}">
+            <Setter Property="Background" Value="#FF2A2A35"/>
+            <Setter Property="Foreground" Value="#FFE8E8F0"/>
+            <Setter Property="BorderBrush" Value="#FF3D3D4D"/>
+            <Setter Property="Padding" Value="12,6"/>
+        </Style>
+        <Style TargetType="{x:Type TextBox}">
+            <Setter Property="Background" Value="#FF1E1E26"/>
+            <Setter Property="Foreground" Value="#FFE8E8F0"/>
+            <Setter Property="BorderBrush" Value="#FF3D3D4D"/>
+            <Setter Property="Padding" Value="6,5"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+        <Style TargetType="{x:Type CheckBox}">
+            <Setter Property="Foreground" Value="#FF9A9AB0"/>
+        </Style>
+        <Style x:Key="FieldLabel" TargetType="{x:Type TextBlock}">
+            <Setter Property="Foreground" Value="#FF9A9AB0"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,0,12,10"/>
+        </Style>
+    </Window.Resources>
+
+    <StackPanel Margin="20">
+
+        <!-- Header: logo + Wallpaper Engine status -->
+        <DockPanel Margin="0,0,0,12">
+            <Border DockPanel.Dock="Left" Background="#FFF2F2F6" CornerRadius="8"
+                    Width="40" Height="40" Margin="0,0,12,0" VerticalAlignment="Center">
+                <Image Source="assets/logo.png" Margin="5"/>
+            </Border>
+            <StackPanel VerticalAlignment="Center">
+                <TextBlock Text="WE Visualizer" FontSize="16" FontWeight="Bold"/>
+                <TextBlock x:Name="WeStatusText" Text="Looking for Wallpaper Engine..."
+                           Foreground="#FF9A9AB0" TextWrapping="Wrap"/>
+            </StackPanel>
+        </DockPanel>
+
+        <!-- Detected wallpaper card -->
+        <Border Background="#FF1E1E26" CornerRadius="8" Padding="12" Margin="0,0,0,14">
+            <DockPanel>
+                <Border Width="128" Height="72" CornerRadius="4" Background="#FF101016"
+                        DockPanel.Dock="Left" Margin="0,0,12,0" ClipToBounds="True">
+                    <Image x:Name="PreviewImage" Stretch="UniformToFill"/>
+                </Border>
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock x:Name="WallpaperTitleText" Text="—" FontSize="15"
+                               FontWeight="SemiBold" TextWrapping="Wrap"/>
+                    <TextBlock x:Name="WallpaperTypeText" Text="" Foreground="#FF9A9AB0" Margin="0,2,0,8"/>
+                    <Button Content="Choose another wallpaper..." HorizontalAlignment="Left"
+                            Click="BrowseWallpaper_Click"/>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <!-- Audio -->
+        <TextBlock Text="Audio file (WAV or MP3)" Foreground="#FF9A9AB0" Margin="0,0,0,4"/>
+        <DockPanel Margin="0,0,0,6">
+            <Button DockPanel.Dock="Right" Content="Browse..." Margin="8,0,0,0" Click="BrowseAudio_Click"/>
+            <TextBox x:Name="AudioPathBox" IsReadOnly="True"/>
+        </DockPanel>
+        <CheckBox x:Name="PlayAudioCheck" IsChecked="True" Margin="0,2,0,4"
+                  Content="Play the song out loud while recording"
+                  ToolTip="Required for audio-reactive wallpapers — they only move to what is actually playing on your speakers. If your wallpaper doesn't react to music, untick this to record in silence."/>
+        <TextBlock Foreground="#FF6E6E85" FontSize="11" TextWrapping="Wrap" Margin="22,0,0,14"
+                   Text="Audio-reactive wallpapers only 'hear' what actually plays, so the song must play. The video always gets the ORIGINAL file muxed in (exact same volume, never re-recorded) — what you hear and your Windows volume do not affect the result."/>
+
+        <!-- Quality settings -->
+        <Expander Header="Quality settings" Foreground="#FFE8E8F0" IsExpanded="False" Margin="0,0,0,14">
+            <Grid Margin="4,12,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" Text="Resolution" Style="{StaticResource FieldLabel}"/>
+                <ComboBox x:Name="ResolutionCombo" Grid.Row="0" Grid.Column="1" Margin="0,0,0,10" SelectedIndex="2">
+                    <ComboBoxItem Content="3840 × 2160 (4K)" Tag="3840x2160"/>
+                    <ComboBoxItem Content="2560 × 1440 (QHD)" Tag="2560x1440"/>
+                    <ComboBoxItem Content="1920 × 1080 (Full HD)" Tag="1920x1080"/>
+                    <ComboBoxItem Content="1280 × 720 (HD)" Tag="1280x720"/>
+                    <ComboBoxItem Content="1080 × 1920 (vertical)" Tag="1080x1920"/>
+                </ComboBox>
+
+                <TextBlock Grid.Row="1" Text="FPS" Style="{StaticResource FieldLabel}"/>
+                <ComboBox x:Name="FpsCombo" Grid.Row="1" Grid.Column="1" Margin="0,0,0,10" SelectedIndex="1">
+                    <ComboBoxItem Content="30" Tag="30"/>
+                    <ComboBoxItem Content="60" Tag="60"/>
+                </ComboBox>
+
+                <TextBlock Grid.Row="2" Text="Encoder" Style="{StaticResource FieldLabel}"/>
+                <ComboBox x:Name="EncoderCombo" Grid.Row="2" Grid.Column="1" Margin="0,0,0,10" SelectedIndex="0"
+                          ToolTip="The best encoder available on this PC is auto-selected at startup.">
+                    <ComboBoxItem Content="x264 (CPU — best quality per bit)" Tag="X264"/>
+                    <ComboBoxItem Content="H.264 NVENC (NVIDIA GPU)" Tag="Nvenc"/>
+                    <ComboBoxItem Content="H.264 Quick Sync (Intel GPU)" Tag="Qsv"/>
+                    <ComboBoxItem Content="H.264 AMF (AMD GPU)" Tag="Amf"/>
+                </ComboBox>
+
+                <TextBlock Grid.Row="3" Text="Quality (CRF/CQ)" Style="{StaticResource FieldLabel}"/>
+                <DockPanel Grid.Row="3" Grid.Column="1" Margin="0,0,0,10">
+                    <TextBlock x:Name="QualityValueText" DockPanel.Dock="Right" Width="110"
+                               Text="16 — very high" VerticalAlignment="Center"
+                               Foreground="#FF9A9AB0" Margin="8,0,0,0"/>
+                    <Slider x:Name="QualitySlider" Minimum="0" Maximum="28" Value="16"
+                            TickFrequency="1" IsSnapToTickEnabled="True"
+                            VerticalAlignment="Center" ValueChanged="QualitySlider_ValueChanged"/>
+                </DockPanel>
+
+                <TextBlock Grid.Row="4" Text="Audio" Style="{StaticResource FieldLabel}"/>
+                <ComboBox x:Name="AudioModeCombo" Grid.Row="4" Grid.Column="1" Margin="0,0,0,10" SelectedIndex="0">
+                    <ComboBoxItem Content="AAC 320 kbps → .mp4 (max compatibility)" Tag="Aac320"/>
+                    <ComboBoxItem Content="Lossless: FLAC / direct copy → .mkv" Tag="Lossless"/>
+                </ComboBox>
+
+                <TextBlock Grid.Row="5" Text="Output folder" Style="{StaticResource FieldLabel}"/>
+                <DockPanel Grid.Row="5" Grid.Column="1">
+                    <Button DockPanel.Dock="Right" Content="..." Margin="8,0,0,0" Click="BrowseOutput_Click"/>
+                    <TextBox x:Name="OutputDirBox" IsReadOnly="True"/>
+                </DockPanel>
+
+                <Border Grid.Row="6" Grid.ColumnSpan="2" Background="#FF181820" CornerRadius="6"
+                        Padding="10" Margin="0,12,0,0">
+                    <TextBlock Foreground="#FF8A8AA0" FontSize="11" TextWrapping="Wrap"
+                               Text="💡 What to pick:&#10;&#10;• Resolution — your screen's or lower; 1080p is the standard for YouTube/socials. 4K only on a powerful PC.&#10;• FPS — 60 for smooth visualizers (recommended); 30 halves the workload and file size.&#10;• Encoder — x264 (CPU) gives the best quality per MB but is demanding at 1080p/60 and above. If the video stutters or you see the 'can't keep up' warning, switch to your GPU: NVENC (NVIDIA), Quick Sync (Intel) or AMF (AMD) — they encode almost for free. The best one available is auto-selected at startup.&#10;• Quality (CRF) — 16 is the sweet spot (visually identical to the source). 0 = lossless but huge files. 20–23 for lighter files.&#10;• Audio — AAC 320 kbps (.mp4): plays everywhere (YouTube, WhatsApp, phones). Lossless (.mkv): bit-exact copy of your file, ideal for editing later. Volume is EXACTLY that of the original file in both."/>
+                </Border>
+            </Grid>
+        </Expander>
+
+        <!-- Recording options -->
+        <CheckBox x:Name="HideWindowCheck" IsChecked="True" Margin="0,0,0,6"
+                  Content="Hide the wallpaper window while recording"
+                  ToolTip="The recording window is moved off-screen so you never see it. If the video stutters or barely reacts to the music, untick this: some systems throttle the rendering of off-screen windows, and a visible window always renders at full speed."/>
+        <CheckBox x:Name="CloseWindowCheck" IsChecked="True" Margin="0,0,0,14"
+                  Content="Close the wallpaper window when finished"
+                  ToolTip="Closes only the recording window, using Wallpaper Engine's own command — Wallpaper Engine itself and your desktop wallpaper keep running."/>
+
+        <Button x:Name="GenerateButton" Content="Generate visualizer" Height="42"
+                FontSize="15" FontWeight="SemiBold"
+                Background="#FF4F6BFF" BorderBrush="#FF4F6BFF" Foreground="White"
+                Click="Generate_Click"/>
+
+        <ProgressBar x:Name="Progress" Height="8" Margin="0,14,0,6" Minimum="0" Maximum="1"/>
+        <TextBlock x:Name="StatusText" Foreground="#FF9A9AB0" TextWrapping="Wrap"/>
+    </StackPanel>
+</Window>
