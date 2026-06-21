@@ -9,10 +9,10 @@
     <PlatformTarget>x64</PlatformTarget>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <AssemblyName>WEVisualizer</AssemblyName>
+    <AssemblyName>WEVG</AssemblyName>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>assets\logo.ico</ApplicationIcon>
-    <Version>1.3.0</Version>
+    <Version>1.4.0</Version>
     <!-- Allows building the Windows TFM from Linux/macOS too (CI) -->
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
   </PropertyGroup>

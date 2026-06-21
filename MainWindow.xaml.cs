@@ -270,10 +270,10 @@ public partial class MainWindow : Window
         // While recording, the same button acts as "Cancel".
         if (_cts != null) { _cts.Cancel(); return; }
 
-        if (_install == null || _wallpaper == null) { MessageBox.Show("Select a wallpaper first."); return; }
-        if (!File.Exists(AudioPathBox.Text)) { MessageBox.Show("Select a WAV or MP3 audio file."); return; }
+        if (_install == null || _wallpaper == null) { ResultDialog.Show(this, "Select a wallpaper first.", "", success: false); return; }
+        if (!File.Exists(AudioPathBox.Text)) { ResultDialog.Show(this, "Select a WAV or MP3 audio file.", "", success: false); return; }
         _ffmpegPath ??= FfmpegRecorder.FindFfmpeg();
-        if (_ffmpegPath == null) { MessageBox.Show("ffmpeg.exe not found (place it next to the executable or on PATH)."); return; }
+        if (_ffmpegPath == null) { ResultDialog.Show(this, "ffmpeg.exe not found", "Place it next to the executable or on your PATH.", success: false); return; }
 
         var settings = ReadSettings();
         SavePrefs(); // remember the user's choices for next time
@@ -310,10 +310,7 @@ public partial class MainWindow : Window
                 settings, _ffmpegPath, outputPath, progress, _cts.Token);
 
             StatusText.Text = $"✔ Exported: {outputPath}";
-            var open = MessageBox.Show(
-                $"Video exported successfully:\n\n{Path.GetFileName(outputPath)}\n\nOpen the output folder?",
-                "WE Visualizer", MessageBoxButton.YesNo, MessageBoxImage.Information);
-            if (open == MessageBoxResult.Yes)
+            if (ResultDialog.Show(this, "Video exported", Path.GetFileName(outputPath), "Open folder"))
                 Process.Start("explorer.exe", $"/select,\"{outputPath}\"");
         }
         catch (OperationCanceledException)
@@ -324,7 +321,7 @@ public partial class MainWindow : Window
         catch (Exception ex)
         {
             StatusText.Text = "Error.";
-            MessageBox.Show(ex.Message, "WE Visualizer", MessageBoxButton.OK, MessageBoxImage.Error);
+            ResultDialog.Show(this, "Something went wrong", ex.Message, success: false);
         }
         finally
         {
@@ -351,7 +348,7 @@ public partial class MainWindow : Window
     private async void Cover_Click(object sender, RoutedEventArgs e)
     {
         if (_cts != null) return; // a recording is in progress
-        if (_install == null || _wallpaper == null) { MessageBox.Show("Select a wallpaper first."); return; }
+        if (_install == null || _wallpaper == null) { ResultDialog.Show(this, "Select a wallpaper first.", "", success: false); return; }
 
         var res = ((ComboBoxItem)ResolutionCombo.SelectedItem).Tag!.ToString()!.Split('x');
         var settings = new ScreenshotSettings
@@ -369,7 +366,7 @@ public partial class MainWindow : Window
             if (!double.TryParse(RatioWBox.Text.Trim(), out var rw) ||
                 !double.TryParse(RatioHBox.Text.Trim(), out var rh) || rw <= 0 || rh <= 0)
             {
-                MessageBox.Show("Enter a valid custom ratio, e.g. 4 : 5.");
+                ResultDialog.Show(this, "Enter a valid custom ratio", "For example 4 : 5.", success: false);
                 return;
             }
             settings.CustomRatioW = rw;
@@ -397,16 +394,13 @@ public partial class MainWindow : Window
                 _install, _wallpaper.ProjectJsonPath, settings, outputPath, progress, CancellationToken.None);
 
             StatusText.Text = $"✔ Cover saved: {outputPath}";
-            var open = MessageBox.Show(
-                $"Cover image saved:\n\n{Path.GetFileName(outputPath)}\n\nOpen the output folder?",
-                "WE Visualizer", MessageBoxButton.YesNo, MessageBoxImage.Information);
-            if (open == MessageBoxResult.Yes)
+            if (ResultDialog.Show(this, "Cover image saved", Path.GetFileName(outputPath), "Open folder"))
                 Process.Start("explorer.exe", $"/select,\"{outputPath}\"");
         }
         catch (Exception ex)
         {
             StatusText.Text = "Error.";
-            MessageBox.Show(ex.Message, "WE Visualizer", MessageBoxButton.OK, MessageBoxImage.Error);
+            ResultDialog.Show(this, "Something went wrong", ex.Message, success: false);
         }
         finally
         {

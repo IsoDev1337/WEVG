@@ -1,4 +1,4 @@
-# WE Visualizer
+# WEVG — Wallpaper Engine Visualizer Generator
 
 **English** | [Español](README.es.md)
 
@@ -11,14 +11,14 @@ A small open-source Windows app that records whatever wallpaper you have running
 
 ## Download
 
-Head to the [**Releases page**](https://github.com/IsoDev1337/WE_Visualizer_Generator/releases/latest) and grab the latest `WEVisualizer.exe`. No installer.
+Head to the [**Releases page**](https://github.com/IsoDev1337/WE_Visualizer_Generator/releases/latest) and grab the latest `WEVG.exe`. No installer.
 
 You also need:
 
 - **Windows 10 1903 (build 18362) or newer** — the capture API requires it.
 - **Wallpaper Engine** (Steam) — detected automatically.
 - **[.NET 8 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/8.0)** — Windows offers to install it on first launch if missing.
-- **`ffmpeg.exe`** next to `WEVisualizer.exe` or on your `PATH` ([gyan.dev](https://www.gyan.dev/ffmpeg/builds/) or [BtbN](https://github.com/BtbN/FFmpeg-Builds/releases) builds). Not bundled to keep the download small.
+- **`ffmpeg.exe`** next to `WEVG.exe` or on your `PATH` ([gyan.dev](https://www.gyan.dev/ffmpeg/builds/) or [BtbN](https://github.com/BtbN/FFmpeg-Builds/releases) builds). Not bundled to keep the download small.
 
 ---
 

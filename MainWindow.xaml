@@ -1,7 +1,7 @@
 <Window x:Class="WEVisualizer.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="WE Visualizer"
+        Title="WEVG"
         Icon="assets/logo.ico"
         Width="620" SizeToContent="Height" ResizeMode="CanMinimize"
         Background="#FF15151B" Foreground="#FFE8E8F0"
@@ -41,7 +41,8 @@
                 <Image Source="assets/logo.png" Margin="5"/>
             </Border>
             <StackPanel VerticalAlignment="Center">
-                <TextBlock Text="WE Visualizer" FontSize="16" FontWeight="Bold"/>
+                <TextBlock Text="Wallpaper Engine Visualizer Generator"
+                           FontSize="15" FontWeight="Bold" TextWrapping="Wrap"/>
                 <TextBlock x:Name="WeStatusText" Text="Looking for Wallpaper Engine..."
                            Foreground="#FF9A9AB0" TextWrapping="Wrap"/>
             </StackPanel>
