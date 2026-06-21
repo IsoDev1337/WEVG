@@ -163,6 +163,35 @@
                 Background="#FF4F6BFF" BorderBrush="#FF4F6BFF" Foreground="White"
                 Click="Generate_Click"/>
 
+        <!-- Cover screenshot -->
+        <Border Background="#FF1A1A22" CornerRadius="8" Padding="12" Margin="0,12,0,0">
+            <StackPanel>
+                <TextBlock Text="Cover image" Foreground="#FFE8E8F0" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                <DockPanel Margin="0,0,0,8">
+                    <Button x:Name="CoverButton" DockPanel.Dock="Right" Content="📸 Capture cover"
+                            Margin="8,0,0,0" Click="Cover_Click"/>
+                    <ComboBox x:Name="AspectCombo" SelectedIndex="0" VerticalAlignment="Center"
+                              SelectionChanged="AspectCombo_SelectionChanged"
+                              ToolTip="Aspect ratio of the saved image. The largest area of this ratio is cropped from the center of the capture — no scaling, no black bars.">
+                        <ComboBoxItem Content="Original (same as resolution)" Tag="Original"/>
+                        <ComboBoxItem Content="Square 1:1" Tag="Square"/>
+                        <ComboBoxItem Content="Custom ratio..." Tag="Custom"/>
+                    </ComboBox>
+                </DockPanel>
+                <DockPanel x:Name="CustomRatioPanel" Margin="0,0,0,2" Visibility="Collapsed">
+                    <TextBlock Text="Ratio" Foreground="#FF9A9AB0" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <TextBox x:Name="RatioWBox" Width="46" Text="4"/>
+                    <TextBlock Text=":" Foreground="#FF9A9AB0" VerticalAlignment="Center" Margin="6,0"/>
+                    <TextBox x:Name="RatioHBox" Width="46" Text="5"/>
+                    <TextBlock Foreground="#FF6E6E85" FontSize="11" VerticalAlignment="Center"
+                               TextWrapping="Wrap" Margin="10,0,0,0"
+                               Text="e.g. 4:5 Instagram · 16:9 banner · 3:1 wide · 1:1 square"/>
+                </DockPanel>
+                <TextBlock Foreground="#FF6E6E85" FontSize="11" TextWrapping="Wrap"
+                           Text="A single high-quality PNG of the wallpaper, saved to the same output folder. Uses the resolution selected in Quality settings."/>
+            </StackPanel>
+        </Border>
+
         <ProgressBar x:Name="Progress" Height="8" Margin="0,14,0,6" Minimum="0" Maximum="1"/>
         <TextBlock x:Name="StatusText" Foreground="#FF9A9AB0" TextWrapping="Wrap"/>
     </StackPanel>

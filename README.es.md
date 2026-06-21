@@ -28,6 +28,16 @@ También necesitas:
 2. Eliges una canción, pulsas **Generate visualizer** y ves avanzar la barra de progreso.
 3. Obtienes un vídeo con sincronía A/V perfecta: el número total de frames lo fija la duración de la canción, y al vídeo se muxea **el archivo de audio original** — nunca una re-grabación, con su volumen exacto.
 
+## Imagen de portada
+
+Además del vídeo, el botón **Capture cover** guarda un PNG de alta calidad del wallpaper — ideal para la portada. Eliges la relación de aspecto:
+
+- **Original** — la misma que la resolución seleccionada.
+- **Cuadrada 1:1** — el mayor cuadrado centrado.
+- **Personalizada** — cualquier relación `An:Al` (p. ej. `4:5` Instagram, `16:9` banner, `3:1` panorámica).
+
+Siempre recorta el **área máxima** de la relación elegida desde el centro de la captura — sin escalar, sin barras negras.
+
 ## Cómo funciona
 
 1. **Detección** — Steam vía registro → bibliotecas de `libraryfolders.vdf` → `wallpaper_engine\wallpaper64.exe`. El wallpaper activo sale de `selectedwallpapers → file` en el `config.json` de WE.

@@ -20,6 +20,10 @@ public class UserPrefs
     public bool HideWindow { get; set; } = true;
     public bool CloseWindow { get; set; } = true;
 
+    // Cover screenshot
+    public int AspectIndex { get; set; } = 0; // Original
+    public string CustomRatio { get; set; } = "4:5";
+
     private static string FilePath => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
         "WEVisualizer", "settings.json");

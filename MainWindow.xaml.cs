@@ -103,6 +103,11 @@ public partial class MainWindow : Window
             HideWindowCheck.IsChecked = prefs.HideWindow;
             CloseWindowCheck.IsChecked = prefs.CloseWindow;
 
+            SelectIndex(AspectCombo, prefs.AspectIndex);
+            var parts = (prefs.CustomRatio ?? "4:5").Split(':');
+            if (parts.Length == 2) { RatioWBox.Text = parts[0]; RatioHBox.Text = parts[1]; }
+            UpdateCustomRatioVisibility();
+
             if (prefs.PlaybackDeviceId != null)
                 foreach (ComboBoxItem item in PlaybackDeviceCombo.Items)
                     if (Equals(item.Tag, prefs.PlaybackDeviceId))
@@ -133,6 +138,8 @@ public partial class MainWindow : Window
         _prefs.PlaybackDeviceId = (PlaybackDeviceCombo.SelectedItem as ComboBoxItem)?.Tag as string;
         _prefs.HideWindow = HideWindowCheck.IsChecked == true;
         _prefs.CloseWindow = CloseWindowCheck.IsChecked == true;
+        _prefs.AspectIndex = AspectCombo.SelectedIndex;
+        _prefs.CustomRatio = $"{RatioWBox.Text.Trim()}:{RatioHBox.Text.Trim()}";
         _prefs.Save();
     }
 
@@ -329,15 +336,98 @@ public partial class MainWindow : Window
         }
     }
 
+    // ---- Cover screenshot --------------------------------------------------------
+
+    private void AspectCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        => UpdateCustomRatioVisibility();
+
+    private void UpdateCustomRatioVisibility()
+    {
+        if (CustomRatioPanel == null) return; // still initializing
+        bool custom = (AspectCombo.SelectedItem as ComboBoxItem)?.Tag as string == "Custom";
+        CustomRatioPanel.Visibility = custom ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    private async void Cover_Click(object sender, RoutedEventArgs e)
+    {
+        if (_cts != null) return; // a recording is in progress
+        if (_install == null || _wallpaper == null) { MessageBox.Show("Select a wallpaper first."); return; }
+
+        var res = ((ComboBoxItem)ResolutionCombo.SelectedItem).Tag!.ToString()!.Split('x');
+        var settings = new ScreenshotSettings
+        {
+            Width = int.Parse(res[0]),
+            Height = int.Parse(res[1]),
+            Aspect = Enum.Parse<CoverAspect>(((ComboBoxItem)AspectCombo.SelectedItem).Tag!.ToString()!),
+            HideCaptureWindow = HideWindowCheck.IsChecked == true,
+            CloseWindowWhenDone = CloseWindowCheck.IsChecked == true,
+            OutputDirectory = OutputDirBox.Text
+        };
+
+        if (settings.Aspect == CoverAspect.Custom)
+        {
+            if (!double.TryParse(RatioWBox.Text.Trim(), out var rw) ||
+                !double.TryParse(RatioHBox.Text.Trim(), out var rh) || rw <= 0 || rh <= 0)
+            {
+                MessageBox.Show("Enter a valid custom ratio, e.g. 4 : 5.");
+                return;
+            }
+            settings.CustomRatioW = rw;
+            settings.CustomRatioH = rh;
+        }
+
+        SavePrefs(); // remember aspect choice
+
+        string suffix = settings.Aspect switch
+        {
+            CoverAspect.Square => " - cover (1x1)",
+            CoverAspect.Custom => $" - cover ({settings.CustomRatioW:0.##}x{settings.CustomRatioH:0.##})",
+            _ => " - cover"
+        };
+        string outputPath = UniquePath(Path.Combine(settings.OutputDirectory, $"{Sanitize(_wallpaper.Title)}{suffix}.png"));
+
+        CoverButton.IsEnabled = false;
+        GenerateButton.IsEnabled = false;
+        SetInputsEnabled(false);
+        var progress = new Progress<string>(s => StatusText.Text = s);
+
+        try
+        {
+            await new RecordingSession().CaptureScreenshotAsync(
+                _install, _wallpaper.ProjectJsonPath, settings, outputPath, progress, CancellationToken.None);
+
+            StatusText.Text = $"✔ Cover saved: {outputPath}";
+            var open = MessageBox.Show(
+                $"Cover image saved:\n\n{Path.GetFileName(outputPath)}\n\nOpen the output folder?",
+                "WE Visualizer", MessageBoxButton.YesNo, MessageBoxImage.Information);
+            if (open == MessageBoxResult.Yes)
+                Process.Start("explorer.exe", $"/select,\"{outputPath}\"");
+        }
+        catch (Exception ex)
+        {
+            StatusText.Text = "Error.";
+            MessageBox.Show(ex.Message, "WE Visualizer", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+        finally
+        {
+            CoverButton.IsEnabled = true;
+            GenerateButton.IsEnabled = true;
+            SetInputsEnabled(true);
+        }
+    }
+
     private void SetInputsEnabled(bool enabled)
     {
-        foreach (var c in new Control[] { ResolutionCombo, FpsCombo, EncoderCombo, AudioModeCombo, PlaybackDeviceCombo })
+        foreach (var c in new Control[] { ResolutionCombo, FpsCombo, EncoderCombo, AudioModeCombo,
+                                          PlaybackDeviceCombo, AspectCombo, CoverButton })
             c.IsEnabled = enabled;
         QualitySlider.IsEnabled = enabled;
         AudioPathBox.IsEnabled = enabled;
         OutputDirBox.IsEnabled = enabled;
         HideWindowCheck.IsEnabled = enabled;
         CloseWindowCheck.IsEnabled = enabled;
+        RatioWBox.IsEnabled = enabled;
+        RatioHBox.IsEnabled = enabled;
     }
 
     private static string Sanitize(string name)

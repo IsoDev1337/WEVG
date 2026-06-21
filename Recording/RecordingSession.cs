@@ -1,6 +1,9 @@
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.IO;
+using System.Windows;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using WEVisualizer.Capture;
 using WEVisualizer.Models;
 using WEVisualizer.Native;
@@ -56,29 +59,10 @@ public sealed class RecordingSession
                 await Task.Delay(300, ct); // let Windows propagate the device change
             }
 
-            // 1. Ask Wallpaper Engine to render the wallpaper in its own window.
+            // 1-2. Open the wallpaper in its own borderless window (hidden off-screen).
             progress.Report((0, "Setting up the wallpaper..."));
-            RunWeCommand(we,
-                $"-control openWallpaper -file \"{projectJsonPath}\" " +
-                $"-playInWindow \"{CaptureWindowTitle}\" -width {settings.Width} -height {settings.Height}");
-
-            _hwnd = await WaitForWindowAsync(CaptureWindowTitle, TimeSpan.FromSeconds(20), ct)
-                   ?? throw new InvalidOperationException(
-                       "Wallpaper Engine didn't open the preview window. " +
-                       "Check that WE is working and that the wallpaper isn't of type 'application'.");
-
-            // 2. Strip borders/title bar and set the exact size so only the wallpaper
-            //    is captured, at the requested resolution.
-            //    When hidden, the window goes OFF-SCREEN (left of the monitor): Windows
-            //    Graphics Capture composes it via DWM even outside the visible area
-            //    (it only fails when minimized). If the result stutters on some systems,
-            //    the user can untick "hide" so the window renders fully on-screen.
-            NativeMethods.SetWindowLongPtr(_hwnd, NativeMethods.GWL_STYLE,
-                new IntPtr(NativeMethods.WS_POPUP | NativeMethods.WS_VISIBLE));
-            int posX = settings.HideCaptureWindow ? -settings.Width - 200 : 0;
-            NativeMethods.SetWindowPos(_hwnd, IntPtr.Zero, posX, 0, settings.Width, settings.Height,
-                NativeMethods.SWP_NOZORDER | NativeMethods.SWP_FRAMECHANGED);
-            await Task.Delay(400, ct); // let the render settle
+            await OpenAndPositionWindowAsync(projectJsonPath, settings.Width, settings.Height,
+                settings.HideCaptureWindow, ct);
 
             // 3. Start capturing (at the window's REAL size) and wait for the first frame.
             progress.Report((0, "Starting capture..."));
@@ -214,6 +198,110 @@ public sealed class RecordingSession
             if (!succeeded || settings.CloseWindowWhenDone)
                 await Task.Run(CloseWindowAndRestoreDesktop);
         }
+    }
+
+    /// <summary>
+    /// Captures a single frame of the wallpaper and saves it as a PNG, center-cropped
+    /// to the chosen aspect ratio (largest rectangle that fits — no scaling, no bars).
+    /// </summary>
+    public async Task CaptureScreenshotAsync(
+        WallpaperEngineInstall we,
+        string projectJsonPath,
+        ScreenshotSettings settings,
+        string outputPath,
+        IProgress<string> progress,
+        CancellationToken ct)
+    {
+        _we = we;
+        _desktopWallpapers = WallpaperEngineLocator.GetCurrentWallpapers(we);
+
+        WindowCapture? capture = null;
+        bool succeeded = false;
+        try
+        {
+            progress.Report("Setting up the wallpaper...");
+            await OpenAndPositionWindowAsync(projectJsonPath, settings.Width, settings.Height,
+                settings.HideCaptureWindow, ct);
+
+            progress.Report("Capturing...");
+            capture = new WindowCapture(_hwnd);
+            var warmup = Stopwatch.StartNew();
+            while (!capture.HasFrame)
+            {
+                if (warmup.Elapsed > TimeSpan.FromSeconds(10))
+                    throw new InvalidOperationException("Capture produced no frames (window minimized?).");
+                await Task.Delay(30, ct);
+            }
+            await Task.Delay(800, ct); // let a few frames render for a clean, non-loading shot
+
+            byte[] frame = new byte[capture.Stride * capture.Height];
+            capture.TryCopyLatest(frame);
+            int w = capture.Width, h = capture.Height, stride = capture.Stride;
+            await Task.Run(() => SaveCroppedPng(frame, w, h, stride, settings.TargetRatio, outputPath), ct);
+            succeeded = true;
+        }
+        finally
+        {
+            capture?.Dispose();
+            if (!succeeded || settings.CloseWindowWhenDone)
+                await Task.Run(CloseWindowAndRestoreDesktop);
+        }
+    }
+
+    /// <summary>
+    /// Opens the wallpaper in a borderless window sized exactly to width×height and
+    /// positions it (off-screen when hidden). Shared by recording and screenshots.
+    /// Windows Graphics Capture composes the window via DWM even off-screen — it only
+    /// fails when minimized.
+    /// </summary>
+    private async Task OpenAndPositionWindowAsync(string projectJsonPath, int width, int height,
+        bool hide, CancellationToken ct)
+    {
+        RunWeCommand(_we!,
+            $"-control openWallpaper -file \"{projectJsonPath}\" " +
+            $"-playInWindow \"{CaptureWindowTitle}\" -width {width} -height {height}");
+
+        _hwnd = await WaitForWindowAsync(CaptureWindowTitle, TimeSpan.FromSeconds(20), ct)
+               ?? throw new InvalidOperationException(
+                   "Wallpaper Engine didn't open the preview window. " +
+                   "Check that WE is working and that the wallpaper isn't of type 'application'.");
+
+        NativeMethods.SetWindowLongPtr(_hwnd, NativeMethods.GWL_STYLE,
+            new IntPtr(NativeMethods.WS_POPUP | NativeMethods.WS_VISIBLE));
+        int posX = hide ? -width - 200 : 0;
+        NativeMethods.SetWindowPos(_hwnd, IntPtr.Zero, posX, 0, width, height,
+            NativeMethods.SWP_NOZORDER | NativeMethods.SWP_FRAMECHANGED);
+        await Task.Delay(400, ct); // let the render settle
+    }
+
+    /// <summary>
+    /// Saves a BGRA frame to PNG. If a target ratio is given, center-crops to the
+    /// largest rectangle of that ratio that fits inside the frame (no upscaling).
+    /// </summary>
+    private static void SaveCroppedPng(byte[] bgra, int width, int height, int stride,
+        double? targetRatio, string outputPath)
+    {
+        var src = BitmapSource.Create(width, height, 96, 96, PixelFormats.Bgra32, null, bgra, stride);
+        src.Freeze();
+
+        BitmapSource final = src;
+        if (targetRatio is double ratio && ratio > 0)
+        {
+            double srcRatio = (double)width / height;
+            int w, h;
+            if (srcRatio > ratio) { h = height; w = (int)Math.Round(h * ratio); } // too wide → limit height
+            else { w = width; h = (int)Math.Round(w / ratio); }                    // too tall → limit width
+            w = Math.Clamp(w, 1, width);
+            h = Math.Clamp(h, 1, height);
+            int x = (width - w) / 2, y = (height - h) / 2;
+            final = new CroppedBitmap(src, new Int32Rect(x, y, w, h));
+            final.Freeze();
+        }
+
+        var encoder = new PngBitmapEncoder();
+        encoder.Frames.Add(BitmapFrame.Create(final));
+        using var fs = File.Create(outputPath);
+        encoder.Save(fs);
     }
 
     /// <summary>

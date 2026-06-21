@@ -28,6 +28,16 @@ You also need:
 2. You pick a song, press **Generate visualizer**, and watch the progress bar.
 3. You get a video with perfect A/V sync: the total frame count is fixed by the song's duration, and the **original audio file is muxed in** — never re-recorded, with its exact original volume.
 
+## Cover image
+
+Besides the video, the **Capture cover** button saves a single high-quality PNG of the wallpaper — perfect for cover art. Choose the aspect ratio:
+
+- **Original** — same as the selected resolution.
+- **Square 1:1** — largest centered square.
+- **Custom** — any `W:H` ratio (e.g. `4:5` Instagram, `16:9` banner, `3:1` wide).
+
+It always crops the **largest area** of the chosen ratio from the center of the capture — no scaling, no black bars.
+
 ## How it works
 
 1. **Detection** — Steam via registry → libraries from `libraryfolders.vdf` → `wallpaper_engine\wallpaper64.exe`. The active wallpaper comes from `selectedwallpapers → file` in WE's `config.json`.
