@@ -1,6 +1,6 @@
 using System.Runtime.InteropServices;
 
-namespace WEVisualizer.Native;
+namespace WEVG.Native;
 
 internal enum ERole { Console = 0, Multimedia = 1, Communications = 2 }
 

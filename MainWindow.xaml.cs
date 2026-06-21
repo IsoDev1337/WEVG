@@ -5,12 +5,12 @@ using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 using Microsoft.Win32;
 using NAudio.CoreAudioApi;
-using WEVisualizer.Capture;
-using WEVisualizer.Models;
-using WEVisualizer.Recording;
-using WEVisualizer.WallpaperEngine;
+using WEVG.Capture;
+using WEVG.Models;
+using WEVG.Recording;
+using WEVG.WallpaperEngine;
 
-namespace WEVisualizer;
+namespace WEVG;
 
 public partial class MainWindow : Window
 {

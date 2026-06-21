@@ -1,7 +1,7 @@
 using NAudio.CoreAudioApi;
-using WEVisualizer.Native;
+using WEVG.Native;
 
-namespace WEVisualizer.Recording;
+namespace WEVG.Recording;
 
 /// <summary>
 /// Temporarily makes another output device the system default — Wallpaper Engine

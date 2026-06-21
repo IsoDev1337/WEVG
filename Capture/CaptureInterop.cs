@@ -4,7 +4,7 @@ using Windows.Graphics.Capture;
 using Windows.Graphics.DirectX.Direct3D11;
 using WinRT;
 
-namespace WEVisualizer.Capture;
+namespace WEVG.Capture;
 
 /// <summary>COM factory that creates a GraphicsCaptureItem from a classic HWND.</summary>
 [ComImport]

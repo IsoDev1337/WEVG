@@ -1,7 +1,7 @@
 using System.Windows;
 using System.Windows.Input;
 
-namespace WEVisualizer;
+namespace WEVG;
 
 /// <summary>
 /// Small modern themed dialog used instead of the stock Windows MessageBox for

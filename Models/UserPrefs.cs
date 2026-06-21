@@ -1,10 +1,10 @@
 using System.IO;
 using System.Text.Json;
 
-namespace WEVisualizer.Models;
+namespace WEVG.Models;
 
 /// <summary>
-/// User preferences persisted between sessions in %APPDATA%\WEVisualizer\settings.json:
+/// User preferences persisted between sessions in %APPDATA%\WEVG\settings.json:
 /// default output folder, quality choices and recording options.
 /// </summary>
 public class UserPrefs
@@ -26,7 +26,7 @@ public class UserPrefs
 
     private static string FilePath => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-        "WEVisualizer", "settings.json");
+        "WEVG", "settings.json");
 
     public static UserPrefs Load()
     {

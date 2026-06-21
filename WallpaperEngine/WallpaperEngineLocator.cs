@@ -3,7 +3,7 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using Microsoft.Win32;
 
-namespace WEVisualizer.WallpaperEngine;
+namespace WEVG.WallpaperEngine;
 
 public record WallpaperInfo(string ProjectJsonPath, string Title, string? PreviewImagePath, string? Type);
 

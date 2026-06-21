@@ -1,7 +1,7 @@
 using NAudio.CoreAudioApi;
 using NAudio.Wave;
 
-namespace WEVisualizer.Recording;
+namespace WEVG.Recording;
 
 /// <summary>
 /// Plays the song through an output device (default, or a specific one chosen for

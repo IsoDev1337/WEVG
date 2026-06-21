@@ -1,4 +1,4 @@
-namespace WEVisualizer.Models;
+namespace WEVG.Models;
 
 public enum VideoEncoder { X264, Nvenc, Qsv, Amf }
 

@@ -1,4 +1,4 @@
-namespace WEVisualizer.Models;
+namespace WEVG.Models;
 
 public enum CoverAspect
 {

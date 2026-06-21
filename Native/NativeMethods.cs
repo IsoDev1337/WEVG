@@ -1,6 +1,6 @@
 using System.Runtime.InteropServices;
 
-namespace WEVisualizer.Native;
+namespace WEVG.Native;
 
 internal static class NativeMethods
 {

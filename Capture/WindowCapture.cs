@@ -6,7 +6,7 @@ using Windows.Graphics.Capture;
 using Windows.Graphics.DirectX;
 using Windows.Graphics.DirectX.Direct3D11;
 
-namespace WEVisualizer.Capture;
+namespace WEVG.Capture;
 
 /// <summary>
 /// Captures a window with Windows.Graphics.Capture and always keeps a CPU copy
@@ -67,7 +67,8 @@ public sealed class WindowCapture : IDisposable
         _framePool.FrameArrived += OnFrameArrived;
 
         _session = _framePool.CreateCaptureSession(item);
-        try { _session.IsCursorCaptureEnabled = false; } catch { /* needs Win10 2004+ */ }
+        if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 19041)) // hide the cursor (Win10 2004+)
+            try { _session.IsCursorCaptureEnabled = false; } catch { }
         _session.StartCapture();
     }
 

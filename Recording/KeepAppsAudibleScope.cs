@@ -1,8 +1,8 @@
 using NAudio.CoreAudioApi;
 using NAudio.CoreAudioApi.Interfaces;
-using WEVisualizer.Native;
+using WEVG.Native;
 
-namespace WEVisualizer.Recording;
+namespace WEVG.Recording;
 
 /// <summary>
 /// Keeps the user's audio alive during recording: every app currently playing on the

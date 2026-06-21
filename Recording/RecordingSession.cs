@@ -4,12 +4,12 @@ using System.IO;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using WEVisualizer.Capture;
-using WEVisualizer.Models;
-using WEVisualizer.Native;
-using WEVisualizer.WallpaperEngine;
+using WEVG.Capture;
+using WEVG.Models;
+using WEVG.Native;
+using WEVG.WallpaperEngine;
 
-namespace WEVisualizer.Recording;
+namespace WEVG.Recording;
 
 /// <summary>
 /// Orchestrates a full recording: opens the wallpaper in a window (optionally hidden
@@ -17,7 +17,7 @@ namespace WEVisualizer.Recording;
 /// </summary>
 public sealed class RecordingSession
 {
-    private const string CaptureWindowTitle = "WEVisualizerCapture";
+    private const string CaptureWindowTitle = "WEVGCapture";
 
     private WallpaperEngineInstall? _we;
     private IntPtr _hwnd;

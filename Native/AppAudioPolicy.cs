@@ -1,6 +1,6 @@
 using System.Runtime.InteropServices;
 
-namespace WEVisualizer.Native;
+namespace WEVG.Native;
 
 /// <summary>
 /// Undocumented Windows API for PER-APP default audio endpoint routing — the same

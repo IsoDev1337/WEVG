@@ -1,6 +1,6 @@
 using System.Windows;
 
-namespace WEVisualizer;
+namespace WEVG;
 
 public partial class App : Application
 {

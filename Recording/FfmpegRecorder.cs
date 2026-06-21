@@ -1,9 +1,9 @@
 using System.Diagnostics;
 using System.IO;
 using System.Text;
-using WEVisualizer.Models;
+using WEVG.Models;
 
-namespace WEVisualizer.Recording;
+namespace WEVG.Recording;
 
 /// <summary>
 /// Launches FFmpeg and feeds it raw BGRA frames over stdin. The audio enters as a
