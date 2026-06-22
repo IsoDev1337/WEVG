@@ -12,7 +12,9 @@
     <AssemblyName>WEVG</AssemblyName>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>assets\logo.ico</ApplicationIcon>
-    <Version>1.4.1</Version>
+    <!-- Bundle WPF native libs into the single-file exe so it's truly standalone -->
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <Version>1.5.0</Version>
     <!-- Allows building the Windows TFM from Linux/macOS too (CI) -->
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
   </PropertyGroup>

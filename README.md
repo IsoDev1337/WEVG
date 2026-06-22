@@ -11,14 +11,11 @@ A small open-source Windows app that records whatever wallpaper you have running
 
 ## Download
 
-Head to the [**Releases page**](https://github.com/IsoDev1337/WE_Visualizer_Generator/releases/latest) and grab the latest `WEVG.exe`. No installer.
+Head to the [**Releases page**](https://github.com/IsoDev1337/WE_Visualizer_Generator/releases/latest), grab the latest `WEVG.exe`, and double-click it. **No installer, no .NET to install** — the runtime is bundled in.
 
-You also need:
+The only thing you need is **Wallpaper Engine** (Steam), which is detected automatically. The first time you create a video, WEVG offers to **download FFmpeg for you** (one click, ~104 MB, once) and drops it next to the exe — nothing to find or set up by hand.
 
-- **Windows 10 1903 (build 18362) or newer** — the capture API requires it.
-- **Wallpaper Engine** (Steam) — detected automatically.
-- **[.NET 8 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/8.0)** — Windows offers to install it on first launch if missing.
-- **`ffmpeg.exe`** next to `WEVG.exe` or on your `PATH` ([gyan.dev](https://www.gyan.dev/ffmpeg/builds/) or [BtbN](https://github.com/BtbN/FFmpeg-Builds/releases) builds). Not bundled to keep the download small.
+Requires **Windows 10 1903 (build 18362) or newer** (the capture API needs it).
 
 ---
 
@@ -70,10 +67,10 @@ It always crops the **largest area** of the chosen ratio from the center of the 
 ## Build from source
 
 ```powershell
-dotnet publish -c Release -r win-x64 --self-contained false -p:PublishSingleFile=true
+dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:EnableCompressionInSingleFile=true
 ```
 
-The exe lands in `bin\Release\net8.0-windows10.0.19041.0\win-x64\publish\`. Use `--self-contained true` to avoid depending on the installed runtime (much bigger exe).
+The single self-contained exe lands in `bin\Release\net8.0-windows10.0.19041.0\win-x64\publish\` (~75 MB, no .NET install required). For a smaller, framework-dependent build, use `--self-contained false`.
 
 ## License
 

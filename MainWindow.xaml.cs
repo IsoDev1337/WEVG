@@ -21,6 +21,7 @@ public partial class MainWindow : Window
     private UserPrefs _prefs = new();
     private bool _applyingPrefs;     // suppresses SelectionChanged while loading prefs
     private bool _encoderUserSet;    // true once the user (or saved prefs) picked an encoder
+    private bool _downloadingFfmpeg; // guards against re-entrant ffmpeg downloads
 
     public MainWindow() => InitializeComponent();
 
@@ -37,10 +38,15 @@ public partial class MainWindow : Window
         ApplyPrefs(UserPrefs.Load());
 
         _ffmpegPath = FfmpegRecorder.FindFfmpeg();
-        if (_ffmpegPath == null)
-            StatusText.Text = "⚠ ffmpeg.exe not found. Place it next to this executable or add it to PATH.";
-        else if (!_encoderUserSet)
-            _ = SelectBestEncoderAsync(_ffmpegPath);
+        if (_ffmpegPath != null)
+        {
+            if (!_encoderUserSet) _ = SelectBestEncoderAsync(_ffmpegPath);
+        }
+        else
+        {
+            // First run with no ffmpeg: offer the one-time auto-download up front.
+            _ = EnsureFfmpegAsync(promptUpFront: true);
+        }
 
         // Auto-detection on startup: WE install and active wallpaper.
         _install = WallpaperEngineLocator.FindInstall();
@@ -263,6 +269,64 @@ public partial class MainWindow : Window
         };
     }
 
+    // ---- FFmpeg auto-setup -------------------------------------------------------
+
+    /// <summary>
+    /// Ensures ffmpeg.exe is available, downloading it once if needed. Returns false
+    /// if it's still missing afterwards (user declined or the download failed).
+    /// </summary>
+    private async Task<bool> EnsureFfmpegAsync(bool promptUpFront)
+    {
+        _ffmpegPath ??= FfmpegRecorder.FindFfmpeg();
+        if (_ffmpegPath != null) return true;
+        if (_downloadingFfmpeg) return false; // a download is already running
+
+        bool go = ResultDialog.Show(this,
+            promptUpFront ? "One-time setup" : "FFmpeg needed",
+            $"WEVG needs FFmpeg to create videos. Download it now? ({FfmpegInstaller.ApproxMb} MB, just this once.)",
+            "Download", promptUpFront ? "Later" : "Cancel");
+        if (!go)
+        {
+            if (promptUpFront) StatusText.Text = "FFmpeg will be downloaded the first time you generate a video.";
+            return false;
+        }
+        return await DownloadFfmpegAsync();
+    }
+
+    private async Task<bool> DownloadFfmpegAsync()
+    {
+        _downloadingFfmpeg = true;
+        SetInputsEnabled(false);
+        GenerateButton.IsEnabled = false;
+        var progress = new Progress<(double Fraction, string Status)>(p =>
+        {
+            Progress.Value = p.Fraction;
+            StatusText.Text = p.Status;
+        });
+        try
+        {
+            _ffmpegPath = await FfmpegInstaller.InstallAsync(progress, CancellationToken.None);
+            StatusText.Text = "✔ FFmpeg ready.";
+            if (!_encoderUserSet) await SelectBestEncoderAsync(_ffmpegPath);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            StatusText.Text = "FFmpeg download failed.";
+            ResultDialog.Show(this, "FFmpeg download failed",
+                $"{ex.Message}\n\nCheck your connection and try again, or drop ffmpeg.exe next to WEVG.exe manually.",
+                success: false);
+            return false;
+        }
+        finally
+        {
+            _downloadingFfmpeg = false;
+            SetInputsEnabled(true);
+            GenerateButton.IsEnabled = true;
+            Progress.Value = 0;
+        }
+    }
+
     // ---- Recording ---------------------------------------------------------------
 
     private async void Generate_Click(object sender, RoutedEventArgs e)
@@ -272,8 +336,7 @@ public partial class MainWindow : Window
 
         if (_install == null || _wallpaper == null) { ResultDialog.Show(this, "Select a wallpaper first.", "", success: false); return; }
         if (!File.Exists(AudioPathBox.Text)) { ResultDialog.Show(this, "Select a WAV or MP3 audio file.", "", success: false); return; }
-        _ffmpegPath ??= FfmpegRecorder.FindFfmpeg();
-        if (_ffmpegPath == null) { ResultDialog.Show(this, "ffmpeg.exe not found", "Place it next to the executable or on your PATH.", success: false); return; }
+        if (!await EnsureFfmpegAsync(promptUpFront: false)) return; // downloads ffmpeg on demand
 
         var settings = ReadSettings();
         SavePrefs(); // remember the user's choices for next time
@@ -298,7 +361,7 @@ public partial class MainWindow : Window
             if (settings.Encoder != VideoEncoder.X264)
             {
                 StatusText.Text = "Checking encoder...";
-                if (!await FfmpegRecorder.CanEncodeAsync(_ffmpegPath, settings.Encoder, settings.Width, settings.Height))
+                if (!await FfmpegRecorder.CanEncodeAsync(_ffmpegPath!, settings.Encoder, settings.Width, settings.Height))
                 {
                     settings.Encoder = VideoEncoder.X264;
                     StatusText.Text = $"⚠ The selected GPU encoder failed at {settings.Width}×{settings.Height} — using x264 instead.";
@@ -307,7 +370,7 @@ public partial class MainWindow : Window
 
             await new RecordingSession().RunAsync(
                 _install, _wallpaper.ProjectJsonPath, AudioPathBox.Text,
-                settings, _ffmpegPath, outputPath, progress, _cts.Token);
+                settings, _ffmpegPath!, outputPath, progress, _cts.Token);
 
             StatusText.Text = $"✔ Exported: {outputPath}";
             if (ResultDialog.Show(this, "Video exported", Path.GetFileName(outputPath), "Open folder"))

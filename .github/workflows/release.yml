@@ -21,8 +21,8 @@ jobs:
         with:
           dotnet-version: 8.0.x
 
-      - name: Publish
-        run: dotnet publish -c Release -r win-x64 --self-contained false -p:PublishSingleFile=true -p:DebugType=None
+      - name: Publish (self-contained single file — no .NET install needed)
+        run: dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:EnableCompressionInSingleFile=true -p:DebugType=None
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
