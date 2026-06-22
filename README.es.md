@@ -4,14 +4,14 @@
 
 Miniapp open source para Windows que graba el wallpaper que tienes puesto en **Wallpaper Engine** y lo combina con una canción (WAV o MP3) para generar un **visualizer en vídeo** de alta calidad — un `.mp4` o `.mkv` que dura exactamente lo que dura la canción.
 
-[![Latest release](https://img.shields.io/github/v/release/IsoDev1337/WE_Visualizer_Generator?label=Download%20.exe&style=for-the-badge)](https://github.com/IsoDev1337/WE_Visualizer_Generator/releases/latest)
-[![Build & Release](https://img.shields.io/github/actions/workflow/status/IsoDev1337/WE_Visualizer_Generator/release.yml?style=for-the-badge&label=build)](https://github.com/IsoDev1337/WE_Visualizer_Generator/actions)
+[![Latest release](https://img.shields.io/github/v/release/IsoDev1337/WEVG?label=Download%20.exe&style=for-the-badge)](https://github.com/IsoDev1337/WEVG/releases/latest)
+[![Build & Release](https://img.shields.io/github/actions/workflow/status/IsoDev1337/WEVG/release.yml?style=for-the-badge&label=build)](https://github.com/IsoDev1337/WEVG/actions)
 
 ---
 
 ## Descarga
 
-Ve a la [**página de Releases**](https://github.com/IsoDev1337/WE_Visualizer_Generator/releases/latest), baja el último `WEVG.exe` y haz doble clic. **Sin instalador y sin instalar .NET** — el runtime va incluido dentro.
+Ve a la [**página de Releases**](https://github.com/IsoDev1337/WEVG/releases/latest), baja el último `WEVG.exe` y haz doble clic. **Sin instalador y sin instalar .NET** — el runtime va incluido dentro.
 
 Lo único que necesitas es **Wallpaper Engine** (Steam), que se detecta solo. La primera vez que crees un vídeo, WEVG te ofrece **descargar FFmpeg por ti** (un clic, ~104 MB, una sola vez) y lo deja junto al exe — nada que buscar ni configurar a mano.
 
